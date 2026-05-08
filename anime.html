@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番剧 - 小世界</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+            color: white;
+            padding-top: 80px;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover;
+            z-index: -2;
+            filter: brightness(0.4);
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(46, 46, 80, 0.9) 100%);
+            z-index: -1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 50px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #fff, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .anime-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        .anime-cover {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+        }
+
+        .anime-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .anime-card:hover .anime-cover img {
+            transform: scale(1.1);
+        }
+
+        .anime-status {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            font-size: 12px;
+            color: #a78bfa;
+        }
+
+        .anime-info {
+            padding: 20px;
+        }
+
+        .anime-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .anime-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .anime-progress {
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <nav>
+        <div class="nav-content">
+            <a href="home.html" class="logo">
+                <i class="fas fa-star"></i>
+                <span>小世界</span>
+            </a>
+            <div class="nav-links">
+                <a href="anime.html">番剧</a>
+                <a href="games.html">游戏</a>
+                <a href="wallpaper.html">壁纸</a>
+                <a href="index.html">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎬 番剧</h1>
+            <p class="page-subtitle">我的追番列表</p>
+        </div>
+
+        <div class="anime-grid">
+            <div class="anime-card">
+                <div class="anime-cover">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop" alt="番剧封面">
+                    <span class="anime-status">完结</span>
+                </div>
+                <div class="anime-info">
+                    <h3 class="anime-title">孤独摇滚！</h3>
+                    <div class="anime-meta">
+                        <span>12 集</span>
+                        <span>喜剧 / 音乐</span>
+                    </div>
+                    <div class="anime-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; display: block;">已追完</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="anime-card">
+                <div class="anime-cover">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=400&fit=crop" alt="番剧封面">
+                    <span class="anime-status">连载中</span>
+                </div>
+                <div class="anime-info">
+                    <h3 class="anime-title">进击的巨人 最终季</h3>
+                    <div class="anime-meta">
+                        <span>28 集</span>
+                        <span>动作 / 剧情</span>
+                    </div>
+                    <div class="anime-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; display: block;">已追完</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="anime-card">
+                <div class="anime-cover">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=400&fit=crop" alt="番剧封面">
+                    <span class="anime-status">连载中</span>
+                </div>
+                <div class="anime-info">
+                    <h3 class="anime-title">东京复仇者</h3>
+                    <div class="anime-meta">
+                        <span>24 集</span>
+                        <span>动作 / 悬疑</span>
+                    </div>
+                    <div class="anime-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; display: block;">18/24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="anime-card">
+                <div class="anime-cover">
+                    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=400&fit=crop" alt="番剧封面">
+                    <span class="anime-status">待追</span>
+                </div>
+                <div class="anime-info">
+                    <h3 class="anime-title">咒术回战 第二季</h3>
+                    <div class="anime-meta">
+                        <span>24 集</span>
+                        <span>动作 / 奇幻</span>
+                    </div>
+                    <div class="anime-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; display: block;">0/24</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2026 小世界 · 自娱自乐小站</p>
+    </footer>
+</body>
+</html>

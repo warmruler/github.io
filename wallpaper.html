@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壁纸 - 小世界</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+            color: white;
+            padding-top: 80px;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover;
+            z-index: -2;
+            filter: brightness(0.4);
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(46, 46, 80, 0.9) 100%);
+            z-index: -1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 50px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #fff, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .folder-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-folder-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(167, 139, 250, 0.2);
+            border: 1px dashed rgba(167, 139, 250, 0.5);
+            border-radius: 12px;
+            color: #a78bfa;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .add-folder-btn:hover {
+            background: rgba(167, 139, 250, 0.3);
+            border-style: solid;
+        }
+
+        .folder-list {
+            list-style: none;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .folder-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .folder-item.active {
+            background: rgba(167, 139, 250, 0.2);
+            border-left: 3px solid #a78bfa;
+        }
+
+        .folder-item.all {
+            border-left: 3px solid #6366f1;
+        }
+
+        .folder-item.all.active {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .folder-icon {
+            font-size: 20px;
+            color: #fbbf24;
+        }
+
+        .all-icon {
+            color: #6366f1;
+        }
+
+        .folder-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .folder-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .folder-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            gap: 10px;
+        }
+
+        .folder-actions {
+            display: none;
+            gap: 5px;
+        }
+
+        .folder-item:hover .folder-actions {
+            display: flex;
+        }
+
+        .folder-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .folder-action-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .folder-action-btn.edit:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .upload-btn {
+            padding: 12px 30px;
+            background: rgba(167, 139, 250, 0.3);
+            border: 1px solid rgba(167, 139, 250, 0.5);
+            border-radius: 25px;
+            color: #a78bfa;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn:hover {
+            background: rgba(167, 139, 250, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .upload-btn input[type="file"] {
+            display: none;
+        }
+
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .wallpaper-item {
+            aspect-ratio: 16/10;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .wallpaper-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .wallpaper-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .wallpaper-item:hover::after {
+            opacity: 1;
+        }
+
+        .wallpaper-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .wallpaper-item:hover .delete-icon {
+            opacity: 1;
+        }
+
+        .delete-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            background: rgba(231, 76, 60, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .delete-icon:hover {
+            background: rgba(231, 76, 60, 1);
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            animation: scaleIn 0.3s ease;
+            cursor: pointer;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #a78bfa;
+            transform: rotate(90deg);
+        }
+
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-modal.show {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 350px;
+            max-width: 90%;
+            text-align: center;
+            animation: scaleIn 0.2s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .confirm-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: rgba(231, 76, 60, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .confirm-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn.confirm {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .confirm-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal-input:focus {
+            border-color: #a78bfa;
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .current-folder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+
+        .current-folder i {
+            color: #a78bfa;
+        }
+
+        .current-folder span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .current-folder .folder-name-text {
+            color: white;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1200px) {
+            .wallpaper-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .wallpaper-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .wallpaper-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <nav>
+        <div class="nav-content">
+            <a href="home.html" class="logo">
+                <i class="fas fa-star"></i>
+                <span>小世界</span>
+            </a>
+            <div class="nav-links">
+                <a href="anime.html">番剧</a>
+                <a href="games.html">游戏</a>
+                <a href="wallpaper.html">壁纸</a>
+                <a href="index.html">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="folder-section">
+                <h3 class="section-title">
+                    <i class="fas fa-folder-open"></i>
+                    文件夹
+                </h3>
+                
+                <button class="add-folder-btn" onclick="showCreateFolderModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>新建文件夹</span>
+                </button>
+
+                <ul class="folder-list" id="folderList">
+                    <li class="folder-item all active" data-id="all">
+                        <i class="fas fa-images folder-icon all-icon"></i>
+                        <div class="folder-info">
+                            <div class="folder-name">全部壁纸</div>
+                            <div class="folder-meta" id="allCount">0 张</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🖼 壁纸</h1>
+                <p class="page-subtitle">我的壁纸收藏</p>
+            </div>
+
+            <div class="current-folder" id="currentFolder">
+                <i class="fas fa-folder"></i>
+                <span>当前位置: <span class="folder-name-text">全部壁纸</span></span>
+            </div>
+
+            <div class="header-actions">
+                <button class="upload-btn" id="uploadBtn">
+                    <i class="fas fa-upload"></i>
+                    <span>上传壁纸</span>
+                    <input type="file" accept="image/*" multiple id="fileInput" style="display: none;">
+                </button>
+            </div>
+
+            <div class="wallpaper-grid" id="wallpaperGrid">
+                <div class="empty-state">
+                    <i class="fas fa-images"></i>
+                    <p>暂无壁纸，点击上方按钮上传</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-modal" id="imageModal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img src="" alt="大图预览" class="modal-content" id="modalImage" onclick="closeModal()">
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="confirm-title">确认删除</h3>
+            <p class="confirm-text">确定要删除吗？此操作无法撤销。</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="cancelDelete()">取消</button>
+                <button class="confirm-btn confirm" onclick="doDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-modal" id="createFolderModal">
+        <div class="confirm-content">
+            <h3 class="confirm-title" style="margin-bottom: 20px;">
+                <i class="fas fa-folder-plus" style="margin-right: 10px;"></i>
+                新建文件夹
+            </h3>
+            <input type="text" class="modal-input" id="folderNameInput" placeholder="请输入文件夹名称">
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="closeCreateFolderModal()">取消</button>
+                <button class="confirm-btn confirm" onclick="createFolder()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-modal" id="renameFolderModal">
+        <div class="confirm-content">
+            <h3 class="confirm-title" style="margin-bottom: 20px;">
+                <i class="fas fa-edit" style="margin-right: 10px;"></i>
+                重命名文件夹
+            </h3>
+            <input type="text" class="modal-input" id="renameFolderInput" placeholder="请输入新名称">
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="closeRenameFolderModal()">取消</button>
+                <button class="confirm-btn confirm" onclick="renameFolder()">重命名</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2026 小世界 · 自娱自乐小站</p>
+    </footer>
+
+    <script>
+        let currentFolderId = 'all';
+        let deletingId = null;
+        let deletingType = null;
+        let renamingFolderId = null;
+        let allWallpapersCount = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFolders();
+            loadWallpapers();
+            initUploadButton();
+        });
+
+        function initUploadButton() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                uploadWallpapers(e.target);
+            });
+        }
+
+        function loadFolders() {
+            Promise.all([
+                fetch('/api/folders'),
+                fetch('/api/wallpapers')
+            ]).then(([foldersRes, wallpapersRes]) => {
+                return Promise.all([foldersRes.json(), wallpapersRes.json()]);
+            }).then(([foldersData, wallpapersData]) => {
+                const folderList = document.getElementById('folderList');
+                const allItem = folderList.querySelector('.all');
+                
+                folderList.innerHTML = '';
+                folderList.appendChild(allItem);
+                
+                const totalCount = wallpapersData.success ? wallpapersData.wallpapers.length : 0;
+                document.getElementById('allCount').textContent = totalCount + ' 张';
+                
+                if (foldersData.success && foldersData.folders.length > 0) {
+                    foldersData.folders.forEach(folder => {
+                        const folderWallpapers = wallpapersData.success ? 
+                            wallpapersData.wallpapers.filter(w => w.folderId === folder.id) : [];
+                        
+                        const li = document.createElement('li');
+                        li.className = 'folder-item';
+                        li.dataset.id = folder.id;
+                        li.innerHTML = `
+                            <i class="fas fa-folder folder-icon"></i>
+                            <div class="folder-info">
+                                <div class="folder-name">${folder.name}</div>
+                                <div class="folder-meta">${folderWallpapers.length} 张 · ${formatDate(folder.updatedAt)}</div>
+                            </div>
+                            <div class="folder-actions">
+                                <button class="folder-action-btn edit" onclick="showRenameModal(${folder.id}, '${folder.name}')">
+                                    <i class="fas fa-pencil"></i>
+                                </button>
+                                <button class="folder-action-btn" onclick="confirmDeleteFolder(${folder.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        li.addEventListener('click', () => selectFolder(folder.id, folder.name));
+                        folderList.appendChild(li);
+                    });
+                }
+            }).catch(err => console.error('加载文件夹失败:', err));
+        }
+
+        function selectFolder(folderId, folderName) {
+            currentFolderId = folderId;
+            
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-id="${folderId}"]`).classList.add('active');
+            
+            document.querySelector('.current-folder .folder-name-text').textContent = folderName;
+            loadWallpapers();
+        }
+
+        function loadWallpapers() {
+            const url = currentFolderId === 'all' ? '/api/wallpapers' : `/api/wallpapers?folderId=${currentFolderId}`;
+            
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const grid = document.getElementById('wallpaperGrid');
+                    if (data.success && data.wallpapers.length > 0) {
+                        grid.innerHTML = data.wallpapers.map(w => `
+                            <div class="wallpaper-item" data-id="${w.id}" data-src="${w.data}">
+                                <img src="${w.data}" alt="${w.name}">
+                                <div class="delete-icon" data-delete-id="${w.id}">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        initWallpaperEvents();
+                    } else {
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-images"></i>
+                                <p>暂无壁纸，点击上方按钮上传</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => console.error('加载壁纸失败:', err));
+        }
+
+        function initWallpaperEvents() {
+            document.getElementById('wallpaperGrid').addEventListener('click', function(e) {
+                const target = e.target;
+                
+                const deleteIcon = target.closest('.delete-icon');
+                if (deleteIcon) {
+                    e.stopPropagation();
+                    const id = parseInt(deleteIcon.dataset.deleteId);
+                    confirmDeleteWallpaper(id);
+                    return;
+                }
+                
+                const wallpaperItem = target.closest('.wallpaper-item');
+                if (wallpaperItem) {
+                    const src = wallpaperItem.dataset.src;
+                    openModal(src);
+                }
+            });
+        }
+
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = src;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function confirmDeleteWallpaper(id) {
+            deletingId = id;
+            deletingType = 'wallpaper';
+            document.getElementById('confirmModal').querySelector('.confirm-title').textContent = '确认删除壁纸';
+            document.getElementById('confirmModal').querySelector('.confirm-text').textContent = '确定要删除这张壁纸吗？此操作无法撤销。';
+            document.getElementById('confirmModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function confirmDeleteFolder(id) {
+            deletingId = id;
+            deletingType = 'folder';
+            document.getElementById('confirmModal').querySelector('.confirm-title').textContent = '确认删除文件夹';
+            document.getElementById('confirmModal').querySelector('.confirm-text').textContent = '确定要删除这个文件夹吗？文件夹内的所有壁纸也将被删除，此操作无法撤销。';
+            document.getElementById('confirmModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cancelDelete() {
+            document.getElementById('confirmModal').classList.remove('show');
+            document.body.style.overflow = '';
+            deletingId = null;
+            deletingType = null;
+        }
+
+        function doDelete() {
+            if (deletingId !== null) {
+                if (deletingType === 'wallpaper') {
+                    deleteWallpaper(deletingId);
+                } else if (deletingType === 'folder') {
+                    deleteFolder(deletingId);
+                }
+            }
+            cancelDelete();
+        }
+
+        function deleteWallpaper(id) {
+            fetch(`/api/wallpapers/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadWallpapers();
+                    loadFolders();
+                } else {
+                    alert('删除失败');
+                }
+            })
+            .catch(err => {
+                console.error('删除失败:', err);
+            });
+        }
+
+        function deleteFolder(id) {
+            fetch(`/api/folders/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadFolders();
+                    if (currentFolderId === id) {
+                        setTimeout(() => {
+                            document.querySelector('.folder-item.all').click();
+                        }, 100);
+                    } else {
+                        loadWallpapers();
+                    }
+                } else {
+                    alert('删除失败');
+                }
+            })
+            .catch(err => {
+                console.error('删除失败:', err);
+                alert('删除失败');
+            });
+        }
+
+        function showCreateFolderModal() {
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('createFolderModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateFolderModal() {
+            document.getElementById('createFolderModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function createFolder() {
+            const name = document.getElementById('folderNameInput').value.trim();
+            if (!name) {
+                alert('请输入文件夹名称');
+                return;
+            }
+
+            fetch('/api/folders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadFolders();
+                    closeCreateFolderModal();
+                } else {
+                    alert('创建失败');
+                }
+            })
+            .catch(err => {
+                console.error('创建失败:', err);
+                alert('创建失败');
+            });
+        }
+
+        function showRenameModal(id, currentName) {
+            renamingFolderId = id;
+            document.getElementById('renameFolderInput').value = currentName;
+            document.getElementById('renameFolderModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRenameFolderModal() {
+            document.getElementById('renameFolderModal').classList.remove('show');
+            document.body.style.overflow = '';
+            renamingFolderId = null;
+        }
+
+        function renameFolder() {
+            const name = document.getElementById('renameFolderInput').value.trim();
+            if (!name) {
+                alert('请输入文件夹名称');
+                return;
+            }
+
+            fetch(`/api/folders/${renamingFolderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadFolders();
+                    closeRenameFolderModal();
+                } else {
+                    alert('重命名失败');
+                }
+            })
+            .catch(err => {
+                console.error('重命名失败:', err);
+                alert('重命名失败');
+            });
+        }
+
+        function addWallpaper(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    const folderId = currentFolderId === 'all' ? null : currentFolderId;
+                    
+                    fetch('/api/wallpapers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: file.name,
+                            data: dataUrl,
+                            userId: null,
+                            folderId: folderId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            resolve(data);
+                        } else {
+                            reject(data.message);
+                        }
+                    })
+                    .catch(err => reject(err));
+                };
+                reader.onerror = () => reject('读取文件失败');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function uploadWallpapers(input) {
+            const files = Array.from(input.files);
+            const promises = files.map(file => addWallpaper(file));
+            
+            Promise.all(promises).then(() => {
+                loadWallpapers();
+                loadFolders();
+                input.value = '';
+            }).catch(err => {
+                console.error('上传失败:', err);
+                alert('上传失败，请重试');
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

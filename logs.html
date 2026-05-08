@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作日志</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .logs-container-full {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logs-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logs-title i {
+            font-size: 32px;
+            color: white;
+        }
+
+        .logs-title h1 {
+            font-size: 28px;
+            color: white;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-btn, .logout-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-btn {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: rgba(231, 76, 60, 0.5);
+            color: rgba(231, 76, 60, 0.9);
+        }
+
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .clear-logs-btn {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: rgba(231, 76, 60, 0.5);
+        }
+
+        .clear-logs-btn:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+
+        .logs-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .log-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .log-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .log-item.success {
+            border-left-color: rgba(46, 204, 113, 0.8);
+        }
+
+        .log-item.failure {
+            border-left-color: rgba(231, 76, 60, 0.8);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .log-action {
+            font-weight: 600;
+            color: white;
+            font-size: 15px;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .log-user {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+
+        .log-details {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            word-break: break-all;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        .logs-count {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+    
+    <div class="logs-container-full">
+        <div class="logs-header">
+            <div class="logs-title">
+                <i class="fas fa-file-alt"></i>
+                <h1>操作日志</h1>
+            </div>
+            <div class="header-actions">
+                <a href="dashboard.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    返回控制台
+                </a>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    退出登录
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="login">登录</button>
+            <button class="filter-btn" data-filter="register">注册</button>
+            <button class="filter-btn" data-filter="success">成功</button>
+            <button class="filter-btn" data-filter="failure">失败</button>
+            <button class="filter-btn clear-logs-btn" onclick="clearLogs()">清空日志</button>
+        </div>
+
+        <div class="logs-count" id="logsCount">共 0 条日志</div>
+
+        <div class="logs-content" id="logsContent">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>暂无操作日志</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!isAdmin()) {
+                alert('您没有权限访问此页面');
+                window.location.href = 'index.html';
+                return;
+            }
+            loadLogs();
+        });
+
+        function loadLogs(filter = 'all') {
+            const logs = getLogs();
+            let filteredLogs = logs;
+            
+            if (filter === 'login') {
+                filteredLogs = logs.filter(log => log.action.includes('登录'));
+            } else if (filter === 'register') {
+                filteredLogs = logs.filter(log => log.action.includes('注册'));
+            } else if (filter === 'success') {
+                filteredLogs = logs.filter(log => log.action.includes('成功'));
+            } else if (filter === 'failure') {
+                filteredLogs = logs.filter(log => log.action.includes('失败'));
+            }
+            
+            const container = document.getElementById('logsContent');
+            const countEl = document.getElementById('logsCount');
+            
+            countEl.textContent = `共 ${filteredLogs.length} 条日志`;
+            
+            if (filteredLogs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无操作日志</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredLogs.reverse();
+            
+            container.innerHTML = filteredLogs.map(log => {
+                const isSuccess = log.action.includes('成功');
+                const isFailure = log.action.includes('失败');
+                let userInfo = '';
+                let details = '';
+                
+                if (log.details) {
+                    if (log.details.username) {
+                        userInfo = `用户: ${log.details.username}`;
+                    }
+                    if (log.details.userId) {
+                        userInfo += userInfo ? ` | ID: ${log.details.userId}` : `用户ID: ${log.details.userId}`;
+                    }
+                    if (log.details.reason) {
+                        userInfo += userInfo ? ` | 原因: ${log.details.reason}` : `原因: ${log.details.reason}`;
+                    }
+                    details = JSON.stringify(log.details, null, 2);
+                }
+                
+                return `
+                    <div class="log-item ${isSuccess ? 'success' : isFailure ? 'failure' : ''}">
+                        <div class="log-header">
+                            <span class="log-action">${log.action}</span>
+                            <span class="log-time">${formatTime(log.timestamp)}</span>
+                        </div>
+                        ${userInfo ? `<div class="log-user">${userInfo}</div>` : ''}
+                        <div class="log-details">${details}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function clearLogs() {
+            if (confirm('确定要清空所有日志吗？此操作无法撤销。')) {
+                localStorage.removeItem('logs');
+                loadLogs();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberedUsername');
+            localStorage.removeItem('rememberMe');
+            window.location.href = 'index.html';
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.dataset.filter;
+                loadLogs(filter);
+            });
+        });
+    </script>
+</body>
+</html>

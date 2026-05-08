@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏 - 小世界</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+            color: white;
+            padding-top: 80px;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover;
+            z-index: -2;
+            filter: brightness(0.4);
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(46, 46, 80, 0.9) 100%);
+            z-index: -1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 50px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #fff, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        .game-cover {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+
+        .game-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .game-cover img {
+            transform: scale(1.1);
+        }
+
+        .game-platform {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            font-size: 12px;
+            color: #a78bfa;
+        }
+
+        .game-info {
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .game-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .game-tag {
+            padding: 4px 12px;
+            background: rgba(167, 139, 250, 0.2);
+            border-radius: 15px;
+            font-size: 12px;
+            color: #a78bfa;
+        }
+
+        .game-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .play-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #a78bfa, #818cf8);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(167, 139, 250, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <nav>
+        <div class="nav-content">
+            <a href="home.html" class="logo">
+                <i class="fas fa-star"></i>
+                <span>小世界</span>
+            </a>
+            <div class="nav-links">
+                <a href="anime.html">番剧</a>
+                <a href="games.html">游戏</a>
+                <a href="wallpaper.html">壁纸</a>
+                <a href="index.html">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🎮 游戏</h1>
+            <p class="page-subtitle">我的游戏收藏</p>
+        </div>
+
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-cover">
+                    <img src="https://images.unsplash.com/photo-1567732305796-315277536682?w=350&h=200&fit=crop" alt="游戏封面">
+                    <span class="game-platform">PC</span>
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">艾尔登法环</h3>
+                    <div class="game-tags">
+                        <span class="game-tag">开放世界</span>
+                        <span class="game-tag">RPG</span>
+                        <span class="game-tag">FromSoftware</span>
+                    </div>
+                    <div class="game-status">
+                        <span>游戏中 · 80小时</span>
+                    </div>
+                    <button class="play-btn">开始游戏</button>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-cover">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=350&h=200&fit=crop" alt="游戏封面">
+                    <span class="game-platform">PC / Switch</span>
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">星露谷物语</h3>
+                    <div class="game-tags">
+                        <span class="game-tag">模拟经营</span>
+                        <span class="game-tag">休闲</span>
+                        <span class="game-tag">农场</span>
+                    </div>
+                    <div class="game-status">
+                        <span>休闲 · 农场Lv.5</span>
+                    </div>
+                    <button class="play-btn">开始游戏</button>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-cover">
+                    <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=350&h=200&fit=crop" alt="游戏封面">
+                    <span class="game-platform">PS5</span>
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">战神 诸神黄昏</h3>
+                    <div class="game-tags">
+                        <span class="game-tag">动作冒险</span>
+                        <span class="game-tag">PS独占</span>
+                        <span class="game-tag">剧情</span>
+                    </div>
+                    <div class="game-status">
+                        <span>已通关 · 45小时</span>
+                    </div>
+                    <button class="play-btn">开始游戏</button>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-cover">
+                    <img src="https://images.unsplash.com/photo-1528164344705-47542687000d?w=350&h=200&fit=crop" alt="游戏封面">
+                    <span class="game-platform">Switch</span>
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">塞尔达传说 王国之泪</h3>
+                    <div class="game-tags">
+                        <span class="game-tag">开放世界</span>
+                        <span class="game-tag">冒险</span>
+                        <span class="game-tag">任天堂</span>
+                    </div>
+                    <div class="game-status">
+                        <span>游戏中 · 120小时</span>
+                    </div>
+                    <button class="play-btn">开始游戏</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2026 小世界 · 自娱自乐小站</p>
+    </footer>
+</body>
+</html>

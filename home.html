@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - 小世界</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover;
+            z-index: -2;
+            filter: brightness(0.4);
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(46, 46, 80, 0.8) 100%);
+            z-index: -1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        nav:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #fff, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+        }
+
+        .hero-tags {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .tag {
+            padding: 8px 20px;
+            background: rgba(167, 139, 250, 0.2);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 25px;
+            font-size: 14px;
+            color: #a78bfa;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: rgba(167, 139, 250, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .action-btn i {
+            font-size: 20px;
+        }
+
+        .preview-section {
+            padding: 80px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #a78bfa, #818cf8);
+            border-radius: 3px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+        }
+
+        .preview-header h3 {
+            margin-right: auto;
+        }
+
+        .preview-header i {
+            font-size: 22px;
+            color: #a78bfa;
+        }
+
+        .preview-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .preview-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .preview-item {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .item-cover {
+            width: 50px;
+            height: 70px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .item-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .wallpaper-item {
+            aspect-ratio: 16/10;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .wallpaper-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .wallpaper-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .wallpaper-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .wallpaper-item:hover::after {
+            opacity: 1;
+        }
+
+        .wallpaper-item:hover .delete-icon {
+            opacity: 1;
+        }
+
+        .delete-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: rgba(231, 76, 60, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .delete-icon:hover {
+            background: rgba(231, 76, 60, 1);
+            transform: scale(1.1);
+        }
+
+        .upload-btn {
+            padding: 8px 16px;
+            background: rgba(167, 139, 250, 0.3);
+            border: 1px solid rgba(167, 139, 250, 0.5);
+            border-radius: 20px;
+            color: #a78bfa;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background: rgba(167, 139, 250, 0.5);
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            animation: scaleIn 0.3s ease;
+            cursor: pointer;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #a78bfa;
+            transform: rotate(90deg);
+        }
+
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-modal.show {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 350px;
+            max-width: 90%;
+            text-align: center;
+            animation: scaleIn 0.2s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .confirm-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: rgba(231, 76, 60, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .confirm-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn.confirm {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .confirm-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 80px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 900px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 32px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            nav {
+                padding: 15px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .wallpaper-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <nav>
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <i class="fas fa-star"></i>
+                <span>小世界</span>
+            </a>
+            <div class="nav-links">
+                <a href="#anime">番剧</a>
+                <a href="#games">游戏</a>
+                <a href="#wallpaper">壁纸</a>
+                <a href="#about">关于</a>
+                <a href="index.html" onclick="logout()">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">✦ ここは私の小さな世界 ✦</h1>
+            <p class="hero-subtitle">游戏 × 番剧 × 像素日常</p>
+            <div class="hero-tags">
+                <span class="tag">🎮 游戏</span>
+                <span class="tag">🎬 番剧</span>
+                <span class="tag">🖼 壁纸</span>
+                <span class="tag">🎨 创作</span>
+            </div>
+            <div class="action-buttons">
+                <a href="anime.html" class="action-btn">
+                    <i class="fas fa-film"></i>
+                    <span>🎬 番剧</span>
+                </a>
+                <a href="games.html" class="action-btn">
+                    <i class="fas fa-gamepad"></i>
+                    <span>🎮 游戏</span>
+                </a>
+                <a href="wallpaper.html" class="action-btn">
+                    <i class="fas fa-image"></i>
+                    <span>🖼 壁纸</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="preview-section">
+        <h2 class="section-title">我的收藏</h2>
+        
+        <div class="preview-grid">
+            <div class="preview-card" id="anime">
+                <div class="preview-header">
+                    <i class="fas fa-film"></i>
+                    <h3>最新追番</h3>
+                </div>
+                <div class="preview-items">
+                    <div class="preview-item">
+                        <div class="item-cover">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=140&fit=crop" alt="番剧封面">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">孤独摇滚！</div>
+                            <div class="item-status">第12话 / 共12话</div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="item-cover">
+                            <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=100&h=140&fit=crop" alt="番剧封面">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">进击的巨人 最终季</div>
+                            <div class="item-status">第28话 / 共28话</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-card" id="games">
+                <div class="preview-header">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>正在玩</h3>
+                </div>
+                <div class="preview-items">
+                    <div class="preview-item">
+                        <div class="item-cover">
+                            <img src="https://images.unsplash.com/photo-1567732305796-315277536682?w=100&h=140&fit=crop" alt="游戏封面">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">艾尔登法环</div>
+                            <div class="item-status">游戏中 · 80小时</div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="item-cover">
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=140&fit=crop" alt="游戏封面">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">星露谷物语</div>
+                            <div class="item-status">休闲 · 农场Lv.5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-card" id="wallpaper">
+                <div class="preview-header">
+                    <i class="fas fa-image"></i>
+                    <h3>最近壁纸</h3>
+                    <label class="upload-btn">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" accept="image/*" multiple onchange="uploadWallpapers(this)" style="display: none;">
+                    </label>
+                </div>
+                <div class="wallpaper-grid" id="wallpaperGrid">
+                    <div class="wallpaper-item">
+                        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=125&fit=crop" alt="壁纸">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=125&fit=crop" alt="壁纸">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=125&fit=crop" alt="壁纸">
+                    </div>
+                    <div class="wallpaper-item">
+                        <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=200&h=125&fit=crop" alt="壁纸">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="image-modal" id="imageModal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img src="" alt="大图预览" class="modal-content" id="modalImage" onclick="closeModal()">
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="confirm-title">确认删除</h3>
+            <p class="confirm-text">确定要删除这张壁纸吗？此操作无法撤销。</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="cancelDelete()">取消</button>
+                <button class="confirm-btn confirm" onclick="doDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">© 2026 小世界 · 自娱自乐小站</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(26, 26, 46, 0.95)';
+            } else {
+                nav.style.background = 'rgba(255, 255, 255, 0.08)';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWallpapers();
+            initWallpaperEvents();
+        });
+
+        function loadWallpapers() {
+            const wallpapers = getWallpapers();
+            const grid = document.getElementById('wallpaperGrid');
+            
+            let wallpaperHTML = '';
+            if (wallpapers.length > 0) {
+                wallpaperHTML = wallpapers.map(w => `
+                    <div class="wallpaper-item" data-id="${w.id}" data-src="${w.data}">
+                        <img src="${w.data}" alt="${w.name}">
+                        <div class="delete-icon" data-delete-id="${w.id}">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            grid.innerHTML = wallpaperHTML;
+        }
+
+        function initWallpaperEvents() {
+            document.getElementById('wallpaperGrid').addEventListener('click', function(e) {
+                const target = e.target;
+                
+                const deleteIcon = target.closest('.delete-icon');
+                if (deleteIcon) {
+                    e.stopPropagation();
+                    const id = parseInt(deleteIcon.dataset.deleteId);
+                    confirmDeleteWallpaper(id);
+                    return;
+                }
+                
+                const wallpaperItem = target.closest('.wallpaper-item');
+                if (wallpaperItem) {
+                    const src = wallpaperItem.dataset.src;
+                    openModal(src);
+                }
+            });
+        }
+
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = src;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function uploadWallpapers(input) {
+            const files = Array.from(input.files);
+            const promises = files.map(file => addWallpaper(file));
+            
+            Promise.all(promises).then(() => {
+                loadWallpapers();
+                input.value = '';
+                alert('壁纸上传成功！');
+            }).catch(err => {
+                console.error('上传失败:', err);
+                alert('上传失败，请重试');
+            });
+        }
+
+        let deletingWallpaperId = null;
+
+        function confirmDeleteWallpaper(id) {
+            deletingWallpaperId = id;
+            document.getElementById('confirmModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cancelDelete() {
+            document.getElementById('confirmModal').classList.remove('show');
+            document.body.style.overflow = '';
+            deletingWallpaperId = null;
+        }
+
+        function doDelete() {
+            if (deletingWallpaperId !== null) {
+                deleteWallpaper(deletingWallpaperId);
+                loadWallpapers();
+            }
+            cancelDelete();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberedUsername');
+            localStorage.removeItem('rememberMe');
+        }
+    </script>
+</body>
+</html>
