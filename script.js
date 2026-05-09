@@ -16,8 +16,12 @@ function createParticles() {
 }
 
 function togglePassword(fieldId) {
+    if (!event || !fieldId) return;
+    
     const passwordInput = document.getElementById(fieldId);
     const toggleIcon = event.target;
+    
+    if (!passwordInput || !toggleIcon) return;
     
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -438,6 +442,35 @@ function loadRememberedUser() {
     }
 }
 
+function validateUsername(username) {
+    if (!username) {
+        showError('请输入用户名');
+        return false;
+    }
+    
+    const chineseChars = username.match(/[\u4e00-\u9fa5]/g) || [];
+    const englishChars = username.match(/[a-zA-Z0-9]/g) || [];
+    const otherChars = username.match(/[^a-zA-Z0-9\u4e00-\u9fa5]/g) || [];
+    
+    if (otherChars.length > 0) {
+        showError('用户名只能包含中文、英文和数字');
+        return false;
+    }
+    
+    if (chineseChars.length > 8) {
+        showError('中文用户名最长8个字符');
+        return false;
+    }
+    
+    const totalLength = chineseChars.length + englishChars.length;
+    if (totalLength < 6 || totalLength > 12) {
+        showError('用户名长度需在6-12位之间');
+        return false;
+    }
+    
+    return true;
+}
+
 function handleRegister(event) {
     event.preventDefault();
     
@@ -452,9 +485,8 @@ function handleRegister(event) {
     
     addLog('注册尝试', { username: username, email: email, isAdmin: isAdmin });
     
-    if (!username) {
-        showError('请输入用户名');
-        addLog('注册失败', { username: username, reason: '用户名为空' });
+    if (!validateUsername(username)) {
+        addLog('注册失败', { username: username, reason: '用户名格式不正确' });
         loginBtn.classList.remove('loading');
         return;
     }

@@ -21,17 +21,17 @@
             </div>
             <h2 id="welcomeTitle">欢迎回来</h2>
             <p id="welcomeSubtitle">请登录您的账户</p>
-            <form id="loginForm">
+            <form id="loginForm" autocomplete="off">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="用户名" required>
+                    <input type="text" id="username" placeholder="用户名" required autocomplete="username">
                     <label for="username">用户名</label>
                     <i class="fas fa-user icon-left"></i>
                 </div>
                 <div class="input-group password">
-                    <input type="password" id="password" placeholder="密码" required>
+                    <input type="password" id="password" placeholder="密码" required autocomplete="new-password">
                     <label for="password">密码</label>
                     <i class="fas fa-lock icon-left"></i>
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
                 </div>
                 <div class="error-message" id="errorMessage"></div>
                 <div class="remember-me">

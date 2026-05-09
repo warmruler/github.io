@@ -140,6 +140,151 @@
             font-size: 12px;
             color: rgba(255, 255, 255, 0.6);
         }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 450px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .serial-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .serial-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .serial-code {
+            font-family: monospace;
+            font-size: 14px;
+            color: #a78bfa;
+            word-break: break-all;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .serial-expires {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .serial-expires.expired {
+            color: #e74c3c;
+        }
+
+        .serial-expires.permanent {
+            color: #2ecc71;
+        }
+
+        .delete-serial-btn {
+            padding: 8px 12px;
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            border-radius: 8px;
+            color: #e74c3c;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-serial-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .copied-badge {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+            display: none;
+        }
+
+        .copied-badge.show {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -185,12 +330,36 @@
                 <h3>数据库查看</h3>
                 <p>查看所有数据库内容，包括原始数据和统计信息</p>
             </div>
+            <div class="dashboard-card" onclick="openSerialModal()">
+                <div class="card-icon" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.5), rgba(39, 174, 96, 0.5));">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3>序列号管理</h3>
+                <p>生成管理员注册序列号，有效期5分钟</p>
+            </div>
         </div>
 
         <div class="dashboard-footer">
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> 退出登录
             </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="serialModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title"><i class="fas fa-key"></i> 序列号管理</span>
+                <span class="modal-close" onclick="closeSerialModal()">&times;</span>
+            </div>
+            <button class="generate-btn" onclick="generateSerial()">
+                <i class="fas fa-plus"></i> 生成新序列号 (5分钟有效)
+            </button>
+            <div class="serial-list" id="serialList">
+                <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                    加载中...
+                </div>
+            </div>
         </div>
     </div>
 
@@ -231,6 +400,94 @@
             localStorage.removeItem('rememberedUsername');
             localStorage.removeItem('rememberMe');
             window.location.href = 'index.html';
+        }
+
+        function openSerialModal() {
+            document.getElementById('serialModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            loadSerials();
+        }
+
+        function closeSerialModal() {
+            document.getElementById('serialModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function loadSerials() {
+            fetch('/api/admin/serials')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('serialList');
+                    if (data.success && data.serials.length > 0) {
+                        list.innerHTML = data.serials.map(s => `
+                            <div class="serial-item">
+                                <div>
+                                    <div class="serial-code" onclick="copySerial('${s.code}')">${s.code}</div>
+                                    <div class="serial-expires ${s.isExpired ? 'expired' : (s.expiresAt === '永久有效' ? 'permanent' : '')}">
+                                        ${s.isExpired ? '已过期' : s.expiresAt}
+                                    </div>
+                                </div>
+                                ${s.expiresAt !== '永久有效' ? `<button class="delete-serial-btn" onclick="deleteSerial('${s.code}')">删除</button>` : ''}
+                            </div>
+                        `).join('');
+                    } else {
+                        list.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">暂无序列号</div>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('serialList').innerHTML = '<div style="text-align: center; color: rgba(231,76,60,0.8); padding: 20px;">加载失败</div>';
+                });
+        }
+
+        function generateSerial() {
+            fetch('/api/admin/serial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ duration: 5 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadSerials();
+                } else {
+                    alert('生成失败');
+                }
+            })
+            .catch(err => alert('生成失败'));
+        }
+
+        function deleteSerial(code) {
+            if (!confirm('确定要删除此序列号吗？')) return;
+            
+            fetch(`/api/admin/serial/${code}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadSerials();
+                } else {
+                    alert('删除失败');
+                }
+            })
+            .catch(err => alert('删除失败'));
+        }
+
+        function copySerial(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const badge = document.createElement('span');
+                badge.className = 'copied-badge show';
+                badge.textContent = '已复制';
+                badge.style.position = 'fixed';
+                badge.style.top = '50%';
+                badge.style.left = '50%';
+                badge.style.transform = 'translate(-50%, -50%)';
+                badge.style.zIndex = '9999';
+                document.body.appendChild(badge);
+                setTimeout(() => {
+                    badge.remove();
+                }, 2000);
+            });
         }
     </script>
 </body>

@@ -8,6 +8,33 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+let adminSerialCodes = [
+    { code: 'WRXNB', expiresAt: null }
+];
+
+function generateSerialCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 32; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
+function isValidSerial(code) {
+    const serial = adminSerialCodes.find(s => s.code === code);
+    if (!serial) return false;
+    if (serial.expiresAt && Date.now() > serial.expiresAt) {
+        adminSerialCodes = adminSerialCodes.filter(s => s.code !== code);
+        return false;
+    }
+    return true;
+}
+
+function cleanExpiredSerials() {
+    adminSerialCodes = adminSerialCodes.filter(s => !s.expiresAt || Date.now() <= s.expiresAt);
+}
+
 const db = new sqlite3.Database('database.sqlite', (err) => {
     if (err) {
         console.error('Error opening database:', err);
@@ -67,15 +94,49 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '.')));
 
+function validateUsername(username) {
+    if (!username) return { valid: false, message: '用户名不能为空' };
+    
+    const chineseChars = username.match(/[\u4e00-\u9fa5]/g) || [];
+    const englishChars = username.match(/[a-zA-Z0-9]/g) || [];
+    const otherChars = username.match(/[^a-zA-Z0-9\u4e00-\u9fa5]/g) || [];
+    
+    if (otherChars.length > 0) {
+        return { valid: false, message: '用户名只能包含中文、英文和数字' };
+    }
+    
+    if (chineseChars.length > 8) {
+        return { valid: false, message: '中文用户名最长8个字符' };
+    }
+    
+    const totalLength = chineseChars.length + englishChars.length;
+    if (totalLength < 6 || totalLength > 12) {
+        return { valid: false, message: '用户名长度需在6-12位之间' };
+    }
+    
+    return { valid: true };
+}
+
 app.post('/api/register', (req, res) => {
-    const { username, password, email, isAdmin } = req.body;
+    const { username, password, email, isAdmin, adminSerial } = req.body;
     
     if (!username || !password) {
         return res.status(400).json({ success: false, message: '用户名和密码不能为空' });
     }
 
+    const usernameValidation = validateUsername(username);
+    if (!usernameValidation.valid) {
+        return res.status(400).json({ success: false, message: usernameValidation.message });
+    }
+
     if (password.length < 6) {
         return res.status(400).json({ success: false, message: '密码长度至少为6位' });
+    }
+
+    if (isAdmin) {
+        if (!adminSerial || !isValidSerial(adminSerial.toUpperCase())) {
+            return res.status(400).json({ success: false, message: '管理员序列号无效或已过期' });
+        }
     }
 
     const salt = bcrypt.genSaltSync(10);
@@ -302,6 +363,48 @@ app.delete('/api/wallpapers/:id', (req, res) => {
             res.json({ success: true });
         });
     });
+});
+
+app.post('/api/admin/serial', (req, res) => {
+    const { duration } = req.body;
+    const expiresIn = (duration || 5) * 60 * 1000;
+    const newCode = generateSerialCode();
+    
+    adminSerialCodes.push({
+        code: newCode,
+        expiresAt: Date.now() + expiresIn
+    });
+    
+    res.json({
+        success: true,
+        code: newCode,
+        expiresIn: Math.floor(expiresIn / 1000 / 60) + '分钟',
+        expiresAt: new Date(Date.now() + expiresIn).toLocaleString('zh-CN')
+    });
+});
+
+app.get('/api/admin/serials', (req, res) => {
+    cleanExpiredSerials();
+    res.json({
+        success: true,
+        serials: adminSerialCodes.map(s => ({
+            code: s.code,
+            expiresAt: s.expiresAt ? new Date(s.expiresAt).toLocaleString('zh-CN') : '永久有效',
+            isExpired: s.expiresAt && Date.now() > s.expiresAt
+        }))
+    });
+});
+
+app.delete('/api/admin/serial/:code', (req, res) => {
+    const { code } = req.params;
+    const initialLength = adminSerialCodes.length;
+    adminSerialCodes = adminSerialCodes.filter(s => s.code !== code);
+    
+    if (adminSerialCodes.length < initialLength) {
+        res.json({ success: true, message: '序列号已删除' });
+    } else {
+        res.status(404).json({ success: false, message: '序列号不存在' });
+    }
 });
 
 app.get('/api/logs', (req, res) => {

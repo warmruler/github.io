@@ -8,6 +8,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        .captcha-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .captcha-group .input-group {
+            flex: 1;
+        }
+        
+        .captcha-code {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #a78bfa;
+            letter-spacing: 4px;
+            cursor: pointer;
+            user-select: none;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .captcha-code:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .admin-serial-group {
+            display: none;
+        }
+        
+        .admin-serial-group.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="background-image"></div>
@@ -21,32 +59,45 @@
             </div>
             <h2>欢迎加入</h2>
             <p>创建您的个人账户</p>
-            <form id="registerForm">
+            <form id="registerForm" autocomplete="off">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="用户名" required>
+                    <input type="text" id="username" placeholder="用户名" required autocomplete="new-username">
                     <label for="username">用户名</label>
                     <i class="fas fa-user icon-left"></i>
                 </div>
                 <div class="input-group">
-                    <input type="email" id="email" placeholder="邮箱（可选）">
+                    <input type="email" id="email" placeholder="邮箱（可选）" autocomplete="new-email">
                     <label for="email">邮箱</label>
                     <i class="fas fa-envelope icon-left"></i>
                 </div>
                 <div class="input-group password">
-                    <input type="password" id="password" placeholder="密码" required>
+                    <input type="password" id="password" placeholder="密码" required autocomplete="new-password">
                     <label for="password">密码</label>
                     <i class="fas fa-lock icon-left"></i>
                     <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
                 </div>
                 <div class="input-group password">
-                    <input type="password" id="confirmPassword" placeholder="确认密码" required>
+                    <input type="password" id="confirmPassword" placeholder="确认密码" required autocomplete="new-password">
                     <label for="confirmPassword">确认密码</label>
                     <i class="fas fa-lock icon-left"></i>
                     <i class="fas fa-eye toggle-password" onclick="togglePassword('confirmPassword')"></i>
                 </div>
+                <div class="captcha-group">
+                    <div class="input-group">
+                        <input type="text" id="captcha" placeholder="验证码" required>
+                        <label for="captcha">验证码</label>
+                        <i class="fas fa-shield-alt icon-left"></i>
+                    </div>
+                    <div class="captcha-code" id="captchaCode" onclick="generateCaptcha()">?</div>
+                </div>
                 <div class="remember-me">
-                    <input type="checkbox" id="isAdmin">
+                    <input type="checkbox" id="isAdmin" onchange="toggleAdminSerial()">
                     <label for="isAdmin">注册为管理员</label>
+                </div>
+                <div class="input-group admin-serial-group" id="adminSerialGroup">
+                    <input type="text" id="adminSerial" placeholder="管理员序列号">
+                    <label for="adminSerial">管理员序列号</label>
+                    <i class="fas fa-key icon-left"></i>
                 </div>
                 <div class="error-message" id="errorMessage"></div>
                 <button type="submit" class="login-btn">
@@ -61,5 +112,146 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        let currentCaptcha = '';
+        
+        function generateCaptcha() {
+            const chars = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
+            let captcha = '';
+            for (let i = 0; i < 4; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            currentCaptcha = captcha;
+            document.getElementById('captchaCode').textContent = captcha;
+        }
+        
+        function toggleAdminSerial() {
+            const checkbox = document.getElementById('isAdmin');
+            const serialGroup = document.getElementById('adminSerialGroup');
+            const serialInput = document.getElementById('adminSerial');
+            
+            if (checkbox.checked) {
+                serialGroup.classList.add('show');
+                serialInput.required = true;
+            } else {
+                serialGroup.classList.remove('show');
+                serialInput.required = false;
+            }
+        }
+        
+        function validateUsername(username) {
+            if (!username) {
+                showError('请输入用户名');
+                return false;
+            }
+            
+            const chineseChars = username.match(/[\u4e00-\u9fa5]/g) || [];
+            const englishChars = username.match(/[a-zA-Z0-9]/g) || [];
+            const otherChars = username.match(/[^a-zA-Z0-9\u4e00-\u9fa5]/g) || [];
+            
+            if (otherChars.length > 0) {
+                showError('用户名只能包含中文、英文和数字');
+                return false;
+            }
+            
+            if (chineseChars.length > 8) {
+                showError('中文用户名最长8个字符');
+                return false;
+            }
+            
+            const totalLength = chineseChars.length + englishChars.length;
+            if (totalLength < 6 || totalLength > 12) {
+                showError('用户名长度需在6-12位之间');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCaptcha();
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const captcha = document.getElementById('captcha').value.trim();
+                const isAdmin = document.getElementById('isAdmin').checked;
+                const adminSerial = document.getElementById('adminSerial').value.trim();
+                
+                if (!validateUsername(username)) {
+                    return false;
+                }
+                
+                if (password !== confirmPassword) {
+                    showError('两次输入的密码不一致');
+                    return false;
+                }
+                
+                if (password.length < 6) {
+                    showError('密码长度至少为6位');
+                    return false;
+                }
+                
+                if (captcha.toUpperCase() !== currentCaptcha.toUpperCase()) {
+                    showError('验证码错误');
+                    generateCaptcha();
+                    return false;
+                }
+                
+                if (isAdmin && !adminSerial) {
+                    showError('请输入管理员序列号');
+                    return false;
+                }
+                
+                const data = {
+                    username: username,
+                    password: password,
+                    email: email,
+                    isAdmin: isAdmin,
+                    adminSerial: adminSerial
+                };
+                
+                fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        showSuccess('注册成功！即将跳转到登录页面...');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        showError(result.message);
+                        generateCaptcha();
+                    }
+                })
+                .catch(err => {
+                    showError('注册失败，请稍后重试');
+                    generateCaptcha();
+                });
+                
+                return false;
+            });
+        });
+        
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
